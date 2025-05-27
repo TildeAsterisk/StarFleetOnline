@@ -1,0 +1,35 @@
+/* HTML BODY */
+body {
+  font-family: 'Roboto Mono';
+  /*font-weight: bold;*/
+  display: flex;
+  height:100vh;
+  margin:0;
+
+  /* DARK THEME */
+  background-color: rgb(17, 17, 17);
+  color: rgb(227, 227, 227);
+}
+
+/* CENTERED CONTAINER */
+.cntrd_cntnr {
+  margin: auto;
+  width: 85%;
+  border: 1px dashed rgb(33, 33, 33);
+  padding: 10px;
+}
+
+.cntrd_cntnr * {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.cntrd_cntnr h1 {
+  font-size: xxx-large;
+  margin:0;
+}
+
+.cntrd_cntnr p {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+}
