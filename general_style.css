@@ -33,3 +33,36 @@ body {
   margin-top: 0;
   margin-bottom: 1.5em;
 }
+
+
+/* FLEET COMMAND */
+.fleet-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
+.ascii-ship {
+  font-size: 24px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  user-select: none;
+}
+.ascii-ship:hover {
+  background-color: #eee;
+}
+#ship-info {
+  margin-top: 30px;
+  padding: 15px;
+  border-top: 2px solid #333;
+}
+.command-buttons {
+  margin-top: 10px;
+}
+
+/* END OF FLEET COMMAND */

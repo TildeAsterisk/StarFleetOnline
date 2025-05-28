@@ -1,31 +1,45 @@
 <?php
-// login.php
+// MYSQLI Database connection
 require_once 'common_functions.php';
 session_start();
 $COM = new Common_Functions();
-$mysqlicnctn = $COM->connect();
-//$COM->handle_login($mysqlicnctn);
-
-// HANDLE LOGIN \\
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $stmt = $mysqlicnctn->prepare('SELECT id, password FROM users WHERE username = ?');
-  $stmt->execute([$_POST['username']]);
-  $user = $stmt->fetch();
-
-  if ($user && password_verify($_POST['password'], $user['password'])) {
-      $_SESSION['user_id'] = $user['id'];
-      header('Location: fleet.php');
-      exit;
-  } else {
-      $error = "Invalid login!";
-      
-  }
+$conn = $COM->connect_mysqli();
+$error = "";
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle login form
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST["username"]);
+    $password = trim($_POST["password"]);
 
+    // Fetch user by username
+    $stmt = $conn->prepare("SELECT id, password_hash FROM users WHERE username = ? LIMIT 1");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->bind_result($user_id, $hashed_password);
 
+    if ($stmt->fetch()) {
+        if (password_verify($password, $hashed_password)) {
+            // Valid login, create session
+            $_SESSION["user_id"] = $user_id;
+            $_SESSION["username"] = $username;
+            header("Location: fleet_command.php");
+            exit();
+        } else {
+            $error = "Incorrect password.";
+        }
+    } else {
+        $error = "User not found.";
+    }
+
+    $stmt->close();
+}
+
+$conn->close();
 ?>
+
+<!-- HTML STARTS -->
 <html>
 <head>
   <title>Log-in</title>

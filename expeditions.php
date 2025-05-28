@@ -95,7 +95,7 @@ $expeditions = $stmt->fetchAll();
 
 <?php if (!empty($success)) echo "<p style='color:green;'>$success</p>"; ?>
 
-<a href="fleet.php">← Back to Fleet</a>
+<a href="fleet_command.php">← Back to Fleet</a>
 
 <form method="post" style="margin-top: 20px;">
     <button type="submit" name="clear_collected" class="btn" style="background-color: #e74c3c; color: white;">Clear Collected Expeditions</button>

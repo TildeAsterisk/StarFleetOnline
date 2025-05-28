@@ -2,7 +2,7 @@
 require_once 'config.php';
 
 class Common_Functions {
-  function connect(){
+  function connect_mysqli(){
     //$pdo = new PDO('mysql:host=localhost;dbname=starfleet_manager', 'your_db_user', 'your_db_password');
     $mysqli_cnctn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     return $mysqli_cnctn;
@@ -15,7 +15,7 @@ class Common_Functions {
   
       if ($user && password_verify($_POST['password'], $user['password'])) {
           $_SESSION['user_id'] = $user['id'];
-          header('Location: fleet.php');
+          header('Location: fleet_command.php');
           exit;
       } else {
           $error = "Invalid login!";
