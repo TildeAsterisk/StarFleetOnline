@@ -83,7 +83,7 @@ $conn->close();
 <body>
   <div class="cntrd_cntnr">
     <h1>Star_Fleet*</h1>
-    <p>Register for Star_Fleet*</p>
+    <p class="headsubtext">Register for Star_Fleet*</p>
     <form method="POST">
       Username: <input type="text" name="username" required><br>
       Email: <input type="email" name="email" required><br>

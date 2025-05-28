@@ -78,11 +78,11 @@ $stmt->close();
 
         <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
 
-        <a href="buy.php">Buy New Ships</a> |
+        <!--a href="buy.php">Buy New Ships</a> |
         <a href="expeditions.php">View Expeditions</a> |
         <a href="logout.php">Logout</a>
 
-        <h1>Fleet Command</h1>
+        <h1>Fleet Command</h1-->
 
         <div class="fleet-grid">
             <?php foreach ($ships as $ship): ?>
@@ -95,32 +95,32 @@ $stmt->close();
 
         <div id="ship-info">
             <div id="details"></div>
-            <h3>Hover over a ship to see details</h3>
+            <p>Hover over a ship to see details</p>
         </div>
     </div>
 
 <script>
 function showInfo(ship) {
     document.getElementById('details').innerHTML = `
-        <p><strong>Ship ID:</strong> ${ship.id}</p>
-        <p><strong>Class:</strong> ${ship.name}</p>
-        <p><strong>Attack:</strong> ${ship.c_attack}</p>
-        <p><strong>Defense:</strong> ${ship.c_defence}</p>
-        <p><strong>Speed:</strong> ${ship.c_speed}</p>
-
+        <h2><strong>${ship.nickname}<sup>#${ship.id}</sup></strong></h2>
+        <p class="headsubtext">
+            <strong>🚀:</strong>${ship.name}
+            <strong>⚔:</strong>${ship.c_attack}
+            <strong>⛉:</strong>${ship.c_defence}
+            <strong>»:</strong>${ship.c_speed}
+            <!--${JSON.stringify(ship)}-->
+        </p>
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="upgrade_ship">Upgrade</button>
+            <button type="submit" name="upgrade_ship">⇧<br>Upgrade</button>
         </form>
-
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="sell_ship">Sell</button>
+            <button type="submit" name="sell_ship">⇄<br>Sell</button>
         </form>
-
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="expedition_ship">Send on Expedition</button>
+            <button type="submit" name="expedition_ship">⇢<br>Expedition</button>
         </form>
     `;
 }

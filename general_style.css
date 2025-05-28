@@ -20,28 +20,28 @@ body {
 }
 
 .cntrd_cntnr * {
-  vertical-align: middle;
+  /*vertical-align: middle;*/
   text-align: center;
 }
 
-.cntrd_cntnr h1 {
-  font-size: xxx-large;
+.cntrd_cntnr h1, .cntrd_cntnr h2, .cntrd_cntnr h3 {
+  /*font-size: xxx-large;*/
   margin:0;
 }
 
-.cntrd_cntnr p {
+.headsubtext {
   margin-top: 0;
   margin-bottom: 1.5em;
 }
 
-
 /* FLEET COMMAND */
+/*
 .fleet-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
   margin-top: 20px;
-}
+}*/
 .ascii-ship {
   font-size: 24px;
   cursor: pointer;
@@ -55,7 +55,7 @@ body {
 }
 .ascii-ship:hover {
   background-color: #eee;
-}
+}/*
 #ship-info {
   margin-top: 30px;
   padding: 15px;
@@ -64,5 +64,5 @@ body {
 .command-buttons {
   margin-top: 10px;
 }
-
+*/
 /* END OF FLEET COMMAND */
