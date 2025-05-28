@@ -47,15 +47,17 @@ $conn->close();
   <link rel="stylesheet" href="general_style.css">
 </head>
 <body>
-  <div class="cntrd_cntnr">
-    <h1>Star_Fleet*</h1>
-    <form method="POST">
-        Username: <input type="text" name="username" required><br>
-        Password: <input type="password" name="password" required><br>
-        <input type="submit" value="Login">
-    </form>
-    <p>Don't have an account? <a href="register.php">Register here</a>.</p> 
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+    <div class="flex_container">
+        <div class="cntrd_cntnr">
+        <h1>Star_Fleet*</h1>
+        <form method="POST">
+            Username: <input type="text" name="username" required><br>
+            Password: <input type="password" name="password" required><br>
+            <input type="submit" value="Login">
+        </form>
+        <p>Don't have an account? <a href="register.php">Register here</a>.</p> 
+        <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+        </div>
   </div>
 </body>
 </html>

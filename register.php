@@ -82,6 +82,7 @@ $conn->close();
   <link rel="stylesheet" href="general_style.css">
 </head>
 <body>
+    <div class="flex_container">
   <div class="cntrd_cntnr">
     <h1>Star_Fleet*</h1>
     <p class="headsubtext">Register for Star_Fleet*</p>
@@ -94,6 +95,7 @@ $conn->close();
 
     <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
     <p>Already have an account? <a href="login.php">Login here</a>.</p>
+  </div>
   </div>
 </body>
 </html>

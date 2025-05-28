@@ -85,28 +85,49 @@ $stmt->close();
     <title>Fleet Command</title>
 </head>
 <body>
-    <div class="cntrd_cntnr">
+    <div id="status_bar">
+        <h2>&nbsp;⚛0&nbsp;&nbsp;<span class="smallTxtSpan">0.00</span>⚛<span class="smallerTxtSpan">/s</span></h2>
+    </div>
+    <div class="flex_container">
+        <div class="cntrd_cntnr">
 
-        <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+            <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
 
-        <!--a href="buy.php">Buy New Ships</a> |
-        <a href="expeditions.php">View Expeditions</a> |
-        <a href="logout.php">Logout</a>
+            <!--a href="buy.php">Buy New Ships</a> |
+            <a href="expeditions.php">View Expeditions</a> |
+            <a href="logout.php">Logout</a>
 
-        <h1>Fleet Command</h1-->
+            <h1>Fleet Command</h1-->
 
-        <div class="fleet-grid">
+            <div class="fleet-grid">
             <?php foreach ($ships as $ship): ?>
                 <div class="ascii-ship" onmouseover="showInfo(<?= htmlspecialchars(json_encode($ship), ENT_QUOTES, 'UTF-8') ?>)">
-                    🛸
+                    <?php 
+                        switch($ship['c_voyage']) {
+                            case 'idle':
+                                printf('🛸');
+                                break;
+                            case 'exploring':
+                                printf('<span style="opacity:0.2;">🛸<span class="smallTxtSpan">☼</span></span>');
+                                break;
+                            case 'returning':
+                                printf('<span style="opacity:0.2;">🛸<span class="smallTxtSpan">↺</span></span>');
+                                break;
+                            default:
+                                printf('🛸<span class="smallTxtSpan">?</span>'); // Unknown voyage type fallback
+                        }
+                    ?>
+                    
                 </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
+
         </div>
     </div>
 
-
     <div id="ship-info">
-        <div id="details"></div>
+        <div id="details">
+        </div>
         <p>Hover over a ship to see details</p>
     </div>
 
@@ -122,17 +143,17 @@ function showInfo(ship) {
             <span class="bigTxtSpan">»</span>${ship.c_speed}
             <br><p style="font-size:xx-small; text-align:justify; color:grey">${ JSON.stringify(ship).replace( /\s+/g, "_") }</p>
         </p>
-        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to upgrade this unit?');">
-            <input type="hidden" name="ship_id" value="${ship.id}">
-            <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
-        </form>
         <form method="post" style="display:inline;" >
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
         </form>
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to upgrade this unit?');">
+            <input type="hidden" name="ship_id" value="${ship.id}">
+            <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
+        </form>
         <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to sell this unit?');">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Sell</button>
+            <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Trade</button>
         </form>
     `;
 }
