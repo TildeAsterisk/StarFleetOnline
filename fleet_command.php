@@ -1,16 +1,18 @@
 <?php
 require_once 'common_functions.php';
 session_start();
+// Declare Com. object and connect mysqli
 $COM = new Common_Functions();
 $mysqli = $COM->connect_mysqli();
-
+// If no user_id is set then go back to login page
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
-
-$error = "";
-
+$error = "";    // Initialise Error variable
+/*  |=============================|
+    | SHIP ACTION BUTTON HANDLERS |
+    |=============================| */
 if (isset($_POST['upgrade_ship'])) {
     $ship_id = $_POST['ship_id'];
     $stmt = $mysqli->prepare('UPDATE user_ships SET attack = attack + 2, defense = defense + 2, speed = speed + 1 WHERE id = ? AND user_id = ?');
@@ -53,6 +55,7 @@ if (isset($_POST['expedition_ship'])) {
     }
 }
 
+// Get list of current users ships
 $stmt = $mysqli->prepare('
     SELECT us.*, s.name, s.base_cost 
     FROM user_ships us 
@@ -91,11 +94,12 @@ $stmt->close();
                 </div>
             <?php endforeach; ?>
         </div>
+    </div>
 
-        <div id="ship-info">
-            <div id="details"></div>
-            <p>Hover over a ship to see details</p>
-        </div>
+
+    <div id="ship-info">
+        <div id="details"></div>
+        <p>Hover over a ship to see details</p>
     </div>
 
 <script>
@@ -103,23 +107,23 @@ function showInfo(ship) {
     document.getElementById('details').innerHTML = `
         <h2><strong>${ship.nickname}<sup>#${ship.id}</sup></strong></h2>
         <p class="headsubtext">
-            <strong>🚀:</strong>${ship.name}
-            <strong>⚔:</strong>${ship.c_attack}
-            <strong>⛉:</strong>${ship.c_defence}
-            <strong>»:</strong>${ship.c_speed}
+            🚀${ship.name}
+            <span class="bigTxtSpan">⚔</span>${ship.c_attack}
+            <span class="bigTxtSpan">⛉</span>${ship.c_defence}
+            <span class="bigTxtSpan">»</span>${ship.c_speed}
             <!--${JSON.stringify(ship)}-->
         </p>
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="upgrade_ship">⇧<br>Upgrade</button>
+            <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
         </form>
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="sell_ship">⇄<br>Sell</button>
+            <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Trade</button>
         </form>
         <form method="post" style="display:inline;">
             <input type="hidden" name="ship_id" value="${ship.id}">
-            <button type="submit" name="expedition_ship">⇢<br>Expedition</button>
+            <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
         </form>
     `;
 }
