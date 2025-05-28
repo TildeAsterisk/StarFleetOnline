@@ -13,7 +13,7 @@ $error = "";
 
 function initialise_player($conn, $user_id) {
     // Fetch the default ship class (e.g., Scout)
-    $stmt = $conn->prepare("SELECT id, d_attack, d_defence, d_speed, d_cargo FROM ship_classes WHERE name = 'Scout Ship' LIMIT 1");
+    $stmt = $conn->prepare("SELECT id, d_attack, d_defence, d_speed, d_cargo FROM ship_classes WHERE name = 'Scout' LIMIT 1");
     $stmt->execute();
     $stmt->bind_result($class_id, $firepower, $armor, $speed, $cargo);
 

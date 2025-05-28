@@ -43,12 +43,12 @@ foreach ($expeditions as $expedition) {
         $flavor = '';
 
         switch ($expedition['expedition_type']) {
-            case 'Mining ship':
+            case 'Mining':
                 $ore = rand(100, 300);
                 $reward = "Mined $ore units of ore.";
                 $flavor = "The mining crew braved harsh asteroid fields and returned with rich minerals.";
                 break;
-            case 'Pirate ship':
+            case 'Pirate':
                 $loot = rand(150, 400);
                 $reward = "Plundered $loot credits worth of cargo.";
                 $flavor = "After a daring raid on a merchant fleet, the pirates celebrated with overflowing treasure chests.";
@@ -58,12 +58,12 @@ foreach ($expeditions as $expedition) {
                 $reward = "Earned $rep reputation points after victorious battles.";
                 $flavor = "The warship triumphed in skirmishes, gaining glory and fear across the sector.";
                 break;
-            case 'Merchant ship':
+            case 'Merchant':
                 $profit = rand(200, 500);
                 $reward = "Traded goods for a profit of $profit credits.";
                 $flavor = "Smooth negotiations and shrewd deals made this trip highly profitable.";
                 break;
-            case 'Scout Ship':
+            case 'Scout':
                 $data = rand(50, 150);
                 $reward = "Discovered $data units of rare data.";
                 $flavor = "Explorers mapped uncharted territories and found remnants of ancient civilizations.";

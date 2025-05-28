@@ -15,7 +15,7 @@ $error = "";    // Initialise Error variable
     |=============================| */
 if (isset($_POST['upgrade_ship'])) {
     $ship_id = $_POST['ship_id'];
-    $stmt = $mysqli->prepare('UPDATE user_ships SET attack = attack + 2, defense = defense + 2, speed = speed + 1 WHERE id = ? AND user_id = ?');
+    $stmt = $mysqli->prepare('UPDATE user_ships SET c_attack = c_attack + 2, c_defence = c_defence + 2, c_speed = c_speed + 1 WHERE id = ? AND user_id = ?');
     $stmt->bind_param('ii', $ship_id, $_SESSION['user_id']);
     $stmt->execute();
     $stmt->close();
@@ -39,7 +39,7 @@ if (isset($_POST['expedition_ship'])) {
     } else {
         $stmt->close();
 
-        $stmt = $mysqli->prepare('SELECT s.name AS type FROM user_ships us JOIN ships s ON us.ship_template_id = s.id WHERE us.id = ?');
+        $stmt = $mysqli->prepare('SELECT s.name AS type FROM user_ships us JOIN ship_classes s ON us.ship_class_id = s.id WHERE us.id = ?');
         $stmt->bind_param('i', $ship_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -113,17 +113,17 @@ function showInfo(ship) {
             <span class="bigTxtSpan">»</span>${ship.c_speed}
             <!--${JSON.stringify(ship)}-->
         </p>
-        <form method="post" style="display:inline;">
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to upgrade this unit?');">
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
         </form>
-        <form method="post" style="display:inline;">
-            <input type="hidden" name="ship_id" value="${ship.id}">
-            <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Trade</button>
-        </form>
-        <form method="post" style="display:inline;">
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to embark this unit on a voyage?');">
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
+        </form>
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to sell this unit?');">
+            <input type="hidden" name="ship_id" value="${ship.id}">
+            <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Sell</button>
         </form>
     `;
 }
