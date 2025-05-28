@@ -86,9 +86,8 @@ $stmt->close();
 
         <div class="fleet-grid">
             <?php foreach ($ships as $ship): ?>
-                <div class="ascii-ship" 
-                    onmouseover="showInfo(<?= htmlspecialchars(json_encode($ship), ENT_QUOTES, 'UTF-8') ?>)">
-                    ✦
+                <div class="ascii-ship" onmouseover="showInfo(<?= htmlspecialchars(json_encode($ship), ENT_QUOTES, 'UTF-8') ?>)">
+                    🛸
                 </div>
             <?php endforeach; ?>
         </div>
