@@ -29,29 +29,37 @@ if (isset($_POST['sell_ship'])) {
 }
 if (isset($_POST['expedition_ship'])) {
     $ship_id = $_POST['ship_id'];
-    $stmt = $mysqli->prepare('SELECT id FROM expeditions WHERE ship_id = ? AND status IN ("active", "completed")');
-    $stmt->bind_param('i', $ship_id);
+        // Fetch current expedition status
+    $stmt = $mysqli->prepare("SELECT c_voyage FROM user_ships WHERE id = ?");
+    $stmt->bind_param("i", $ship_id);
     $stmt->execute();
-    $stmt->store_result();
+    $stmt->bind_result($status);
 
-    if ($stmt->num_rows > 0) {
-        $error = "Ship already on an expedition!";
-    } else {
+    if ($stmt->fetch()) {
         $stmt->close();
 
-        $stmt = $mysqli->prepare('SELECT s.name AS type FROM user_ships us JOIN ship_classes s ON us.ship_class_id = s.id WHERE us.id = ?');
-        $stmt->bind_param('i', $ship_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $ship = $result->fetch_assoc();
+        // Determine new status (simple toggle for demo purposes)
+        $new_status = match ($status) {
+            'idle' => 'exploring',
+            'exploring' => 'returning',
+            'returning' => 'idle',
+            default => 'idle',
+        };
 
-        if ($ship) {
-            $end_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
-            $stmt = $mysqli->prepare('INSERT INTO expeditions (user_id, ship_id, expedition_type, status, end_time) VALUES (?, ?, ?, "active", ?)');
-            $stmt->bind_param('iiss', $_SESSION['user_id'], $ship_id, $ship['type'], $end_time);
-            $stmt->execute();
-            $stmt->close();
+        // Update the status
+        $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ? WHERE id = ?");
+        $stmt2->bind_param("si", $new_status, $ship_id);
+        if ($stmt2->execute()) {
+            echo "Status updated to $new_status";
+        } else {
+            http_response_code(500);
+            echo "Update failed.";
         }
+        $stmt2->close();
+    } else {
+        $stmt->close();
+        http_response_code(404);
+        echo "Ship not found.";
     }
 }
 
@@ -107,7 +115,8 @@ function showInfo(ship) {
     document.getElementById('details').innerHTML = `
         <h2><strong>${ship.nickname}<sup>#${ship.id}</sup></strong></h2>
         <p class="headsubtext">
-            🚀${ship.name}
+            ${ship.name} -
+            ${ship.c_voyage}<br>
             <span class="bigTxtSpan">⚔</span>${ship.c_attack}
             <span class="bigTxtSpan">⛉</span>${ship.c_defence}
             <span class="bigTxtSpan">»</span>${ship.c_speed}

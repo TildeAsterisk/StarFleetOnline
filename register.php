@@ -21,10 +21,11 @@ function initialise_player($conn, $user_id) {
         $stmt->close();
 
         // Insert a new user ship
-        $stmt2 = $conn->prepare("INSERT INTO user_ships (user_id, ship_class_id, nickname, c_attack, c_defence, c_speed, c_cargo)
-                                 VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt2 = $conn->prepare("INSERT INTO user_ships (user_id, ship_class_id, nickname, c_attack, c_defence, c_speed, c_cargo, c_voyage)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $nickname = "Starter Ship";
-        $stmt2->bind_param("iisiiii", $user_id, $class_id, $nickname, $firepower, $armor, $speed, $cargo);
+        $voyage_status = 'idle';
+        $stmt2->bind_param("iisiiiis", $user_id, $class_id, $nickname, $firepower, $armor, $speed, $cargo, $voyage_status);
         $stmt2->execute();
         $stmt2->close();
     } else {
