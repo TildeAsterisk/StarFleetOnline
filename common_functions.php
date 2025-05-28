@@ -22,8 +22,11 @@ class Common_Functions {
           
       }
     }
-  }     
-
+  }
+  
+  function display_error($error){
+    echo " <div class='errorTxtDisplay'>{$error}</div> ";
+  }
 }
 
 

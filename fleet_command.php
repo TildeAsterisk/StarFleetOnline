@@ -50,16 +50,16 @@ if (isset($_POST['expedition_ship'])) {
         $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ? WHERE id = ?");
         $stmt2->bind_param("si", $new_status, $ship_id);
         if ($stmt2->execute()) {
-            echo "Status updated to $new_status";
+            $COM->display_error( "Status updated to $new_status");
         } else {
             http_response_code(500);
-            echo "Update failed.";
+            $COM->display_error("Update failed.");
         }
         $stmt2->close();
     } else {
         $stmt->close();
         http_response_code(404);
-        echo "Ship not found.";
+        $COM->display_error( "Ship not found.");
     }
 }
 
@@ -120,13 +120,13 @@ function showInfo(ship) {
             <span class="bigTxtSpan">⚔</span>${ship.c_attack}
             <span class="bigTxtSpan">⛉</span>${ship.c_defence}
             <span class="bigTxtSpan">»</span>${ship.c_speed}
-            <!--${JSON.stringify(ship)}-->
+            <br><p style="font-size:xx-small; text-align:justify; color:grey">${ JSON.stringify(ship).replace( /\s+/g, "_") }</p>
         </p>
         <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to upgrade this unit?');">
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
         </form>
-        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to embark this unit on a voyage?');">
+        <form method="post" style="display:inline;" >
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
         </form>
