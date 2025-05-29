@@ -63,13 +63,16 @@ if (isset($_POST['expedition_ship'])) { //IF EXPEDITION BUTTON
                 // If ship data was successfully retrieved
                 if ($ship) {
                     // Set the expedition end time to 1 hour from now
-                    $end_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                    $end_time = date('Y-m-d H:i:s', strtotime('+2 hour'));
 
                     // Prepare a query to insert a new expedition record with status 'active'
                     $stmt = $mysqli->prepare('INSERT INTO expeditions (user_id, ship_id, expedition_type, status, end_time) VALUES (?, ?, ?, "active", ?)');
                     $stmt->bind_param('iiss', $_SESSION['user_id'], $ship_id, $ship['type'], $end_time); // Bind user ID, ship ID, ship type, and end time
                     $stmt->execute();     // Execute the insert query
                     $stmt->close();       // Close the statement
+
+                    // Query to change ship countdown time
+                    $COM_FUNC->updateShipCountdown($mysqli, $ship_id, $end_time,);
                 }
                 break;
             //!\\ WHEN exploring->returning, the ship sends an status update to the expedition log.
@@ -78,6 +81,8 @@ if (isset($_POST['expedition_ship'])) { //IF EXPEDITION BUTTON
                 break;
             //!\\ WHEN returning->idle, the ship updates the expedition log and calculates the rewards.
             case 'idle':
+                // Query to change ship countdown time
+                $COM_FUNC->updateShipCountdown($mysqli, $ship_id, NULL);
                 // Finalize the expedition as completed
                 $stmt = $mysqli->prepare('UPDATE expeditions SET status = "completed" WHERE ship_id = ? AND status = "active"');
                 $stmt->bind_param('i', $ship_id);
@@ -177,6 +182,31 @@ $ships = $COM_FUNC->getUserShips($mysqli, $_SESSION['user_id']);
 
 <script>
 function showInfo(ship) {
+    // SHIP.EXPEDITION_END_TIME DOESNT EXIST
+    const endTime = ship.countdown_end ? new Date(ship.countdown_end) : null;
+    let timeLeft = '';
+    let progressHTML = '';
+
+    if(endTime){
+        const now = new Date();
+        const diffMs = endTime - now;
+        const totalDuration = 3600000; // 1 hour in ms
+        const pct = Math.max(0, Math.min(100, 100 - (diffMs / totalDuration) * 100));
+
+        const mins = Math.floor(diffMs / 60000);
+        const secs = Math.floor((diffMs % 60000) / 1000);
+        timeLeft = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+        progressHTML = `
+            <div style="margin-top: 8px;"><center>
+                <div style="height: 10px; background: grey; width: 75%; border-radius: 4px;">
+                    <div style="height: 10px; background: limegreen; width: ${pct}%; border-radius: 4px;"></div>
+                </div>
+                <p style="font-size: small;">${timeLeft} remaining</p>
+            </center></div>
+        `;
+    }
+
     document.getElementById('details').innerHTML = `
         <h2><strong>${ship.nickname}<sup>#${ship.id}</sup></strong></h2>
         <p class="headsubtext">
@@ -185,7 +215,7 @@ function showInfo(ship) {
             <span class="bigTxtSpan">⚔</span>${ship.c_attack}
             <span class="bigTxtSpan">⛉</span>${ship.c_defence}
             <span class="bigTxtSpan">»</span>${ship.c_speed}
-            <br><p style="font-size:xx-small; text-align:justify; color:grey">${ JSON.stringify(ship).replace( /\s+/g, "_") }</p>
+            ${progressHTML}
         </p>
         <form method="post" style="display:inline;" >
             <input type="hidden" name="ship_id" value="${ship.id}">
@@ -200,7 +230,17 @@ function showInfo(ship) {
             <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Trade</button>
         </form>
     `;
+
+    // Optional: add auto-update timer for countdown
+    
+    /*const intervalId = setInterval(() => {
+        showInfo(ship); // re-render to update countdown
+    }, 1000);
+
+    setTimeout(() => clearInterval(intervalId), 60000); // auto-clear in 1 min to avoid infinite loop
+    */
 }
+
 
 function GetShowUraniumStatus(){
     // Embed PHP variable directly into JS

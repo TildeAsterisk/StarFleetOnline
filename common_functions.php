@@ -56,11 +56,13 @@ class Common_Functions {
         $stmt->close();
         return null; // User not found or error
     }
+  }
+  function updateShipCountdown($mysqli, $ship_id, $countdown_end){
+    $stmt = $mysqli->prepare('UPDATE user_ships SET countdown_end = ? WHERE id = ? AND countdown_end IS NOT NULL');
+    $stmt->bind_param('si', $countdown_end ,$ship_id);
+    $stmt->execute();
+    $stmt->close();
+  }
+
 }
-
-
-}
-
-
-
 ?>
