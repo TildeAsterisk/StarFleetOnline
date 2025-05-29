@@ -29,7 +29,7 @@ if (isset($_POST['sell_ship'])) {
 }
 if (isset($_POST['expedition_ship'])) {
     $ship_id = $_POST['ship_id'];
-        // Fetch current expedition status
+    // Fetch current expedition status // DUPE (All user_ships already fetched at beginning)
     $stmt = $mysqli->prepare("SELECT c_voyage FROM user_ships WHERE id = ?");
     $stmt->bind_param("i", $ship_id);
     $stmt->execute();
