@@ -27,17 +27,18 @@ if (isset($_POST['sell_ship'])) {
     $stmt->execute();
     $stmt->close();
 }
+
 if (isset($_POST['expedition_ship'])) {
     $ship_id = $_POST['ship_id'];
+
     // Fetch current expedition status // DUPE (All user_ships already fetched at beginning)
     $stmt = $mysqli->prepare("SELECT c_voyage FROM user_ships WHERE id = ?");
-    $stmt->bind_param("i", $ship_id);
-    $stmt->execute();
+    $stmt->bind_param("i", $ship_id); // Bind the ship_id as an integer parameter
+    $stmt->execute();   // Execute the prepared statement
     $stmt->bind_result($status);
-
+    // If c_voyage for ship_id is found.
     if ($stmt->fetch()) {
         $stmt->close();
-
         // Determine new status (simple toggle for demo purposes)
         $new_status = match ($status) {
             'idle' => 'exploring',
@@ -45,7 +46,36 @@ if (isset($_POST['expedition_ship'])) {
             'returning' => 'idle',
             default => 'idle',
         };
+        // Update Expedition log based on status
+        switch($new_status){
+            case 'exploring':
+                // Retrieve the ship type by joining user_ships with ships based on the template ID
+                $stmt = $mysqli->prepare('SELECT s.id AS type FROM user_ships us JOIN ship_classes s ON us.ship_class_id = s.id WHERE us.id = ?');
+                $stmt->bind_param('i', $ship_id); // Bind the ship_id as an integer
+                $stmt->execute();                 // Execute the statement
+                $result = $stmt->get_result();    // Get the result set
+                $ship = $result->fetch_assoc();  // Fetch the ship data as an associative array
 
+                // If ship data was successfully retrieved
+                if ($ship) {
+                    // Set the expedition end time to 1 hour from now
+                    $end_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+                    // Prepare a query to insert a new expedition record with status 'active'
+                    $stmt = $mysqli->prepare('INSERT INTO expeditions (user_id, ship_id, expedition_type, status, end_time) VALUES (?, ?, ?, "active", ?)');
+                    $stmt->bind_param('iiss', $_SESSION['user_id'], $ship_id, $ship['type'], $end_time); // Bind user ID, ship ID, ship type, and end time
+                    $stmt->execute();     // Execute the insert query
+                    $stmt->close();       // Close the statement
+                }
+                break;
+            case 'returning':
+                // Ship is returning from voyage (return time...)
+                break;
+            case 'idle':
+                // Ship is now idle
+            default:
+                // Unknown Ship Status
+        }
         // Update the status
         $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ? WHERE id = ?");
         $stmt2->bind_param("si", $new_status, $ship_id);
