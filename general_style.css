@@ -1,16 +1,19 @@
 /* HTML BODY */
 body {
-  font-family: 'Roboto Mono';
+  font-family: "Roboto Mono", "Courier New", monospace;
   /*font-weight: bold;*/
   /*display: flex;
   position:relative;*/
   height:100vh;
   margin:0;
+  font-variation-settings: "emoji" 0;
+  font-feature-settings: "emoji" 0;
 
   /* DARK THEME */
   background-color: rgb(17, 17, 17);
   color: #dadada
 }
+
 
 .flex_container{
   display: flex;

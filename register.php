@@ -2,8 +2,8 @@
 // Database connection
 require_once 'common_functions.php';
 session_start();
-$COM = new Common_Functions();
-$conn = $COM->connect_mysqli();
+$COM_FUNC = new Common_Functions();
+$conn = $COM_FUNC->connect_mysqli();
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

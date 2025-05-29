@@ -2,41 +2,44 @@
 require_once 'common_functions.php';
 session_start();
 // Declare Com. object and connect mysqli
-$COM = new Common_Functions();
-$mysqli = $COM->connect_mysqli();
+$COM_FUNC = new Common_Functions();
+$mysqli = $COM_FUNC->connect_mysqli();
 // If no user_id is set then go back to login page
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
 $error = "";    // Initialise Error variable
+
+
 /*  |=============================|
     | SHIP ACTION BUTTON HANDLERS |
     |=============================| */
-if (isset($_POST['upgrade_ship'])) {
-    $ship_id = $_POST['ship_id'];
+if (isset($_POST['upgrade_ship'])) {    //IF UPGRADE BUTTON
+    $ship_id = $_POST['ship_id'];   // Store selected ship_id
+    // Prepare MySQL Statement
     $stmt = $mysqli->prepare('UPDATE user_ships SET c_attack = c_attack + 2, c_defence = c_defence + 2, c_speed = c_speed + 1 WHERE id = ? AND user_id = ?');
+    // Bind params to '?' wildcards in the above SQL statement.
     $stmt->bind_param('ii', $ship_id, $_SESSION['user_id']);
+    // Execute and close the statement
     $stmt->execute();
     $stmt->close();
 }
-if (isset($_POST['sell_ship'])) {
+if (isset($_POST['sell_ship'])) {   //IF SELL SHIP BUTTON
     $ship_id = $_POST['ship_id'];
     $stmt = $mysqli->prepare('DELETE FROM user_ships WHERE id = ? AND user_id = ?');
     $stmt->bind_param('ii', $ship_id, $_SESSION['user_id']);
     $stmt->execute();
     $stmt->close();
 }
-
-if (isset($_POST['expedition_ship'])) {
-    $ship_id = $_POST['ship_id'];
-
-    // Fetch current expedition status // DUPE (All user_ships already fetched at beginning)
+if (isset($_POST['expedition_ship'])) { //IF EXPEDITION BUTTON
+    $ship_id = $_POST['ship_id'];   // Set Ship ID
+    // Fetch current expedition status 
     $stmt = $mysqli->prepare("SELECT c_voyage FROM user_ships WHERE id = ?");
     $stmt->bind_param("i", $ship_id); // Bind the ship_id as an integer parameter
     $stmt->execute();   // Execute the prepared statement
     $stmt->bind_result($status);
-    // If c_voyage for ship_id is found.
+    // If the prepared, bound and executed MySQLi statement's fetch function returns true.
     if ($stmt->fetch()) {
         $stmt->close();
         // Determine new status (simple toggle for demo purposes)
@@ -48,6 +51,7 @@ if (isset($_POST['expedition_ship'])) {
         };
         // Update Expedition log based on status
         switch($new_status){
+            //!\\ WHEN idle->exploring, the ship registers a new expedition log.
             case 'exploring':
                 // Retrieve the ship type by joining user_ships with ships based on the template ID
                 $stmt = $mysqli->prepare('SELECT s.id AS type FROM user_ships us JOIN ship_classes s ON us.ship_class_id = s.id WHERE us.id = ?');
@@ -68,43 +72,53 @@ if (isset($_POST['expedition_ship'])) {
                     $stmt->close();       // Close the statement
                 }
                 break;
+            //!\\ WHEN exploring->returning, the ship sends an status update to the expedition log.
             case 'returning':
                 // Ship is returning from voyage (return time...)
                 break;
+            //!\\ WHEN returning->idle, the ship updates the expedition log and calculates the rewards.
             case 'idle':
-                // Ship is now idle
+                // Finalize the expedition as completed
+                $stmt = $mysqli->prepare('UPDATE expeditions SET status = "completed" WHERE ship_id = ? AND status = "active"');
+                $stmt->bind_param('i', $ship_id);
+                $stmt->execute();
+                $stmt->close();
+            
+                // Optional: reward logic — simulate earning resources
+                $reward = rand(10, 50); // Example: earn 10–50 u
+            
+                // Save the reward to user account (assumes user table has u)
+                $stmt = $mysqli->prepare('UPDATE users SET u = u + ? WHERE id = ?');
+                $stmt->bind_param('ii', $reward, $_SESSION['user_id']);
+                $stmt->execute();
+                $stmt->close();
+            
+                // Notify player of reward
+                $COM_FUNC->display_error("Expedition complete! +{$reward}⚛ earned.");
+                echo '<script>GetShowUraniumStatus();</script>';
+                break;            
             default:
                 // Unknown Ship Status
         }
-        // Update the status
+        //* Update the status
         $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ? WHERE id = ?");
         $stmt2->bind_param("si", $new_status, $ship_id);
-        if ($stmt2->execute()) {
-            $COM->display_error( "Status updated to $new_status");
-        } else {
+        if ($stmt2->execute() != true) {
             http_response_code(500);
-            $COM->display_error("Update failed.");
+            $COM_FUNC->display_error("Update failed.");
         }
         $stmt2->close();
     } else {
         $stmt->close();
         http_response_code(404);
-        $COM->display_error( "Ship not found.");
+        $COM_FUNC->display_error( "Ship/Status not found.");
     }
 }
 
-// Get list of current users ships
-$stmt = $mysqli->prepare('
-    SELECT us.*, s.name, s.base_cost 
-    FROM user_ships us 
-    JOIN ship_classes s ON us.ship_class_id = s.id 
-    WHERE us.user_id = ?
-');
-$stmt->bind_param('i', $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$ships = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+
+// Get list of current users ships. (Purposefully placed at the end of logic.)
+$ships = $COM_FUNC->getUserShips($mysqli, $_SESSION['user_id']);
+
 ?>
 
 <!DOCTYPE html>
@@ -114,7 +128,7 @@ $stmt->close();
     <link rel="stylesheet" href="general_style.css">
     <title>Fleet Command</title>
 </head>
-<body>
+<body onload="GetShowUraniumStatus()">
     <div id="status_bar">
         <h2>&nbsp;⚛0&nbsp;&nbsp;<span class="smallTxtSpan">0.00</span>⚛<span class="smallerTxtSpan">/s</span></h2>
     </div>
@@ -138,7 +152,7 @@ $stmt->close();
                                 printf('🛸');
                                 break;
                             case 'exploring':
-                                printf('<span style="opacity:0.2;">🛸<span class="smallTxtSpan">☼</span></span>');
+                                printf('<span style="opacity:0.2;">🛸<span class="smallTxtSpan">☼</span></span>'); //…
                                 break;
                             case 'returning':
                                 printf('<span style="opacity:0.2;">🛸<span class="smallTxtSpan">↺</span></span>');
@@ -185,6 +199,16 @@ function showInfo(ship) {
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="sell_ship"><span class="biggerTxtSpan">⇄</span><br>Trade</button>
         </form>
+    `;
+}
+
+function GetShowUraniumStatus(){
+    // Embed PHP variable directly into JS
+    const playerUranium = <?= $COM_FUNC->getUserPoints($mysqli, $_SESSION['user_id']) ?? 0 ?>;
+    const playerUps = 0.00; // placeholder for uranium per second
+
+    document.getElementById('status_bar').innerHTML = `
+        <h2>&nbsp;⚛${playerUranium}&nbsp;&nbsp;<span class="smallTxtSpan">${playerUps}</span>⚛<span class="smallerTxtSpan">/s</span></h2>
     `;
 }
 </script>
