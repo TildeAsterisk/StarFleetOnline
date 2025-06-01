@@ -182,14 +182,20 @@ $ships = $COM_FUNC->getUserShips($mysqli, $_SESSION['user_id']);
     </div>
 
 <script>
+
+/**
+ * Takes a ship object and displays its information on the page.
+ * @param {object} ship - The Ship object.
+ */
 function showInfo(ship) {
     // SHIP.EXPEDITION_END_TIME DOESNT EXIST
     const endTime = ship.countdown_end ? new Date(ship.countdown_end) : null;
     let timeLeft = '';
     let progressHTML = '';
     let expeditionButtonHTML = '';
-
-    if(endTime){
+    // IF END TIME IS NULL OR LESS THAN CURRENT TIME
+    $currentDateTime = new Date();
+    if(endTime > $currentDateTime.getTime() && endTime != null){
         const now = new Date();
         const diffMs = endTime - now;
         const totalDuration = 3600000; // 1 hour in ms
@@ -207,7 +213,11 @@ function showInfo(ship) {
                 <p style="font-size: small; margin:0.5em;">${timeLeft} remaining</p>
             </center></div>
         `;
-        expeditionButtonHTML = ``; // GREYED OUT BUTTON
+        expeditionButtonHTML = `
+        <form method="post" style="display:inline;" >
+            <input type="hidden" name="ship_id" value="${ship.id}">
+            <button class="command_buttons" type="submit" name="expedition_ship" style="opacity:0.5;" disabled ><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
+        </form>`; // GREYED OUT BUTTON
     }
     else{
         expeditionButtonHTML = `
@@ -247,7 +257,6 @@ function showInfo(ship) {
     setTimeout(() => clearInterval(intervalId), 60000); // auto-clear in 1 min to avoid infinite loop
     */
 }
-
 
 function GetShowUraniumStatus(){
     // Embed PHP variable directly into JS
