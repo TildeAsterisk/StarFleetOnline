@@ -105,9 +105,9 @@ if (isset($_POST['expedition_ship'])) { //IF EXPEDITION BUTTON
             default:
                 // Unknown Ship Status
         }
-        //* Update the status
-        $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ? WHERE id = ?");
-        $stmt2->bind_param("si", $new_status, $ship_id);
+        // Update the status
+        $stmt2 = $mysqli->prepare("UPDATE user_ships SET c_voyage = ?, countdown_end = ? WHERE id = ?");
+        $stmt2->bind_param("ssi", $new_status, $end_time, $ship_id);
         if ($stmt2->execute() != true) {
             http_response_code(500);
             $COM_FUNC->display_error("Update failed.");
@@ -123,6 +123,7 @@ if (isset($_POST['expedition_ship'])) { //IF EXPEDITION BUTTON
 
 // Get list of current users ships. (Purposefully placed at the end of logic.)
 $ships = $COM_FUNC->getUserShips($mysqli, $_SESSION['user_id']);
+//echo var_dump($ships);
 
 ?>
 
