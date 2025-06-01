@@ -187,6 +187,7 @@ function showInfo(ship) {
     const endTime = ship.countdown_end ? new Date(ship.countdown_end) : null;
     let timeLeft = '';
     let progressHTML = '';
+    let expeditionButtonHTML = '';
 
     if(endTime){
         const now = new Date();
@@ -199,18 +200,26 @@ function showInfo(ship) {
         timeLeft = `${mins}:${secs.toString().padStart(2, '0')}`;
 
         progressHTML = `
-            <div style="margin-top: 8px;"><center>
+            <div style="margin: 0;"><center>
                 <div style="height: 10px; background: grey; width: 75%; border-radius: 4px;">
                     <div style="height: 10px; background: limegreen; width: ${pct}%; border-radius: 4px;"></div>
                 </div>
-                <p style="font-size: small;">${timeLeft} remaining</p>
+                <p style="font-size: small; margin:0.5em;">${timeLeft} remaining</p>
             </center></div>
         `;
+        expeditionButtonHTML = ``; // GREYED OUT BUTTON
+    }
+    else{
+        expeditionButtonHTML = `
+        <form method="post" style="display:inline;" >
+            <input type="hidden" name="ship_id" value="${ship.id}">
+            <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
+        </form>`;
     }
 
     document.getElementById('details').innerHTML = `
         <h2><strong>${ship.nickname}<sup>#${ship.id}</sup></strong></h2>
-        <p class="headsubtext">
+        <p style='margin:0;'>
             ${ship.name} -
             ${ship.c_voyage}<br>
             <span class="bigTxtSpan">⚔</span>${ship.c_attack}
@@ -218,10 +227,7 @@ function showInfo(ship) {
             <span class="bigTxtSpan">»</span>${ship.c_speed}
             ${progressHTML}
         </p>
-        <form method="post" style="display:inline;" >
-            <input type="hidden" name="ship_id" value="${ship.id}">
-            <button class="command_buttons" type="submit" name="expedition_ship"><span class="biggerTxtSpan">⇢</span><br>Voyage</button>
-        </form>
+        ${expeditionButtonHTML}
         <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to upgrade this unit?');">
             <input type="hidden" name="ship_id" value="${ship.id}">
             <button class="command_buttons" type="submit" name="upgrade_ship"><span class="biggerTxtSpan">⇧</span><br>Upgrade</button>
